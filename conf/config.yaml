@@ -1,0 +1,26 @@
+recommend_mysql_r:
+    server: 10.9.19.193
+    user: marketserverdb
+    passwd: marketserverdb
+    database: recommenddb
+    port: 3306
+
+yff_mysql:
+    server: 127.0.0.1
+    user: root
+    passwd: '11340825'
+    database: yff
+    port: 3306
+
+baidu_chungu:
+    APP_ID: 10854012
+    API_KEY: 6hC6VEjrMcQbsntkYUsiNGq6
+    SECRET_KEY: NGEEnMqar4OhDIGE4sCu3fYRz3CukU8s
+
+debug_level: info
+
+
+
+
+
+    

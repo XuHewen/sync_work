@@ -1,0 +1,46 @@
+train_info:
+    name: market
+    tfidf_config: tfidf-0
+    classifier_type: svm
+    classifier_config: svm-0
+
+market:
+    tfidf-0:
+        count_threshold: 2
+        topic_method: lsi
+        num_topics: 300
+
+    svm-0:
+        name: 'support vector machine'
+        kernel: rbf
+        C: 10.
+        gamma: 10.
+        is_unbalanced: true
+        is_prob: false
+        is_one_vs_rest: false
+        n_jobs: 3
+        is_test: true
+
+    logistic-0:
+        name: 'logistic regression'
+        penalty: l2
+        C: 1.
+        is_unbalanced: true
+
+    xgb-0:
+        name: 'xgboost'
+        max_depth: 10
+        eta: 2
+        silent: 1
+        objective: binary:logistic
+        n_thread: 4
+        eval_metric: auc
+        n_round: 100
+
+make_doc:
+    tmp_dir: ./data/jieba/                             # jieba缓存目录
+    user_dict_path: ./data/jieba/jieba2.dict.utf8      # 用户词典
+    stop_words_path: ./data/jieba/stop_words.utf8      # 停用词
+    idf_file_path: ./data/jieba/idf.utf8               # idf词典
+    is_keyword: false
+    len_threshold: 1
