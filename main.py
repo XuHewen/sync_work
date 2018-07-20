@@ -2,7 +2,7 @@ from pprint import pprint
 
 import yaml
 
-from machine import lsi, make_doc, predict, train
+from machine import lsi, predict, train
 # from project.keyword import keyword_filter_main
 from utils.logger import logger
 from utils.mysql_ctrl import MysqlCtrl
