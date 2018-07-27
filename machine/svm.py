@@ -73,14 +73,14 @@ def svm_clf(train_info, data, target, le, is_save=True):
         clf_path = os.path.join(base_dir, clf_name)
 
         with open(clf_path, 'wb') as f:
-            pickle.dump(clf, f)
+            pickle.dump(clf, f, protocol=2)
 
         le_name = '{0}-{1}-{2}-label_encoder.pkl'.format(
             name, ml_type, topic_method)
         le_path = os.path.join(base_dir, le_name)
 
         with open(le_path, 'wb') as f:
-            pickle.dump(le, f)
+            pickle.dump(le, f, protocol=2)
 
     return train_score, test_score
 

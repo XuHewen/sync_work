@@ -49,6 +49,7 @@ def load_yff_news(recommend_db):
 
     return res
 
+
 def insert_news(recommend_db, news_list):
     """insert news to mysql
     """

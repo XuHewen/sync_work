@@ -7,10 +7,27 @@ from machine import lsi, predict, train
 from utils.logger import logger
 from utils.mysql_ctrl import MysqlCtrl
 
-from memory_profiler import profile
+
+def predict_test(config_info, train_info):
+    recommend_db = MysqlCtrl(config_info['recommend_mysql_r'])
+    recommend_db.connect()
+
+    select_sql = 'SELECT news_id, content FROM t_news_corpus_latest LIMIT 10;'
+
+    ret, news = recommend_db.TB_select(select_sql)
+
+    tfidf_model, clf, le = predict.init_model(train_info)
+
+    for news_id, content in news:
+        pred = predict.predict(train_info, tfidf_model, clf, le, content)
+        pred = le.inverse_transform(pred)
+
+        # 
+        print(pred)
+
+    recommend_db.close()
 
 
-@profile
 def main():
 
     log_file_path = './logs/train_sogou'
@@ -33,7 +50,9 @@ def main():
 
         # lsi.compute_lsi_lda(train_info, recover_m=False, recover_d=False, recover_tfidf=True)
 
-        train.train(train_info)
+        # train.train(train_info)
+
+        predict_test(config_info, train_info)
 
         print('hello')
     except KeyboardInterrupt:

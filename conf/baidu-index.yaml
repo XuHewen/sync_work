@@ -1,0 +1,5 @@
+baidu_index:
+    account: '13866025431'
+    passwd: '808258'
+    cookie_path: './data/baidu_index/cookie'
+    screen_shot_path: './data/baidu_index/screenshot'
