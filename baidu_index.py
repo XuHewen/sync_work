@@ -35,7 +35,7 @@ def main():
 
         df = pd.DataFrame(res, columns=columns)
 
-        df.to_excel('test.xlsx', index=False)
+        df.to_excel('./data/baidu_index/baidu-index.xlsx', index=False)
 
         print('hello')
     except KeyboardInterrupt:

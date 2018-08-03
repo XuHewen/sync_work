@@ -14,10 +14,10 @@ ret, eof, info = bucket.list(BUCKET_NAME, prefix, limit=2000)
 keys = []
 for x in ret['items']:
     print(x['key'])
-    dkeys.append(x['key'])
+    keys.append(x['key'])
 
 print(len(keys))
 
-# ops = build_batch_delete(BUCKET_NAME, keys)
-# ret, info = bucket.batch(ops)
+ops = build_batch_delete(BUCKET_NAME, keys)
+ret, info = bucket.batch(ops)
 # print(info)

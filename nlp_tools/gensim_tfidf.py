@@ -130,16 +130,23 @@ class GensimTfidf(object):
         logger.log.info('saving lda model ...')
         self.lda_model.save(self.lda_model_path)
 
-    def add_document_from_file(self, my_doc, is_save=False, count_threshold=2):
+    def add_document_from_file(self, my_doc, is_save=False,
+                               count_threshold=0, no_below=0,
+                               no_above=1, keep_n=100000):
+
         if not isinstance(my_doc, MyDoc):
             logger.log.error('please provide instance of MyDoc')
         else:
-            self.dictionary.add_documents(line for line in my_doc)
+            self.dictionary.add_documents(doc for doc in my_doc)
             rare_ids = []
             for tokenid, doc_freq in iteritems(self.dictionary.dfs):
                 if doc_freq <= count_threshold:
                     rare_ids.append(tokenid)
             self.dictionary.filter_tokens(rare_ids)
+
+            self.dictionary.filter_extremes(no_below=no_below, no_above=no_above, keep_n=keep_n)
+
+            self.dictionary.compactify()
             if is_save:
                 self.save_dictionary()
 
@@ -191,15 +198,15 @@ class GensimTfidf(object):
 
             return corpus_tfidf
 
-    def init_lsi_model(self, corpus_tfidf, num_topics=2, is_save=False):
+    def init_lsi_model(self, corpus_tfidf, is_save=False, **kwargs):
         self.lsi_model = models.LsiModel(
-            corpus_tfidf, id2word=self.dictionary, num_topics=num_topics)
+            corpus_tfidf, id2word=self.dictionary, **kwargs)
         if is_save:
             self.save_lsi_model()
 
-    def init_lda_model(self, corpus_tfidf, num_topics=2, is_save=False):
+    def init_lda_model(self, corpus_tfidf, is_save=False, **kwargs):
         self.lda_model = models.LdaModel(
-            corpus_tfidf, id2word=self.dictionary, num_topics=num_topics)
+            corpus_tfidf, id2word=self.dictionary, **kwargs)
         if is_save:
             self.save_lda_model()
 

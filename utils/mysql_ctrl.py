@@ -159,7 +159,7 @@ class MysqlCtrl(object):
 
     def TB_update(self, update_sql):
         "select data"
-        logger.log.info('update data: %s' % update_sql)
+        logger.log.info('update table')
         try:
             self.db.execute(update_sql)
             self.conn.commit()

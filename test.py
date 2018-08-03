@@ -7,29 +7,42 @@ from machine import lsi, predict, train
 from utils.logger import logger
 from utils.mysql_ctrl import MysqlCtrl
 import numpy as np
+import jieba.analyse
+from nlp_tools import keyword_filter
 
 
-def predict_test(config_info, train_info):
+def titleContentKeywordMatch(news_id, title, content):
+    """检测新闻正文是否包含文章关键字
+
+    Arguments:
+        title {str} -- 新闻标题
+        content {str} -- 新闻正文
+    """
+    titleKeywords = jieba.analyse.extract_tags(title, 10)
+
+    checker = keyword_filter.TrieCheck()
+
+    for word in titleKeywords:
+        checker.add_keyword(word)
+
+    res = checker.get_keyword(content)
+
+    if not res:
+        print(news_id, title)
+
+
+
+def predict_test(config_info):
     recommend_db = MysqlCtrl(config_info['recommend_mysql_r'])
     recommend_db.connect()
 
-    select_sql = 'SELECT news_id, info_title, content FROM t_news_corpus_latest '\
-                 'LIMIT 1000;'
+    select_sql = 'SELECT news_id, info_title, content FROM t_news_corpus_latest;'
 
     ret, news = recommend_db.TB_select(select_sql)
 
-    tfidf_model, clf, le = predict.init_model(train_info)
-
     res = []
     for news_id, title, content in news:
-        pred = predict.predict(train_info, tfidf_model, clf, le, content)
-        # pred = le.inverse_transform(pred)
-
-        pred = pred[0]
-        # res.append((news_id, title, pred, content))
-
-        if pred == 1:
-            print(news_id)
+        titleContentKeywordMatch(news_id, title, content)
 
     # insert_sql = 'INSERT INTO t_result '\
     #              '(news_id, title, pred, content) '\
@@ -42,7 +55,7 @@ def predict_test(config_info, train_info):
 
 def main():
 
-    log_file_path = './logs/train_sogou'
+    log_file_path = './logs/test'
     logger.logger_init(log_file_path, stdout_level='info')
 
     train_yaml_path = './conf/train-sogou.yaml'
@@ -56,15 +69,8 @@ def main():
 
     try:
 
-        # lsi.init_tfidf(project_info)
 
-        # lsi.init_lsi_lda(project_info, recover_tfidf=True) 
-
-        # lsi.compute_lsi_lda(project_info, recover_m=False, recover_d=False, recover_tfidf=False)
-
-        # train.train(project_info)
-
-        predict_test(config_info, project_info)
+        predict_test(config_info)
 
         # print('hello')
     except KeyboardInterrupt:

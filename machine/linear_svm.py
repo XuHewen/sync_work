@@ -6,7 +6,8 @@ import os
 import pickle
 
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.svm import LinearSVC
 
 from utils.logger import logger
 from machine.get_project_config import get_project_config
@@ -17,19 +18,17 @@ def clf(project_info, data, target, le, is_save=True):
     name, _, topic_method, _, train_method, train_config = get_project_config(project_info)
 
     is_test = train_config['is_test']
-    
+
     is_unbalanced = train_config['is_unbalanced']
 
+    params = train_config['params']
 
     class_weight = None
     if is_unbalanced:
         class_weight = 'balanced'
 
     test_score = None
-
-    params = train_config['params']
-    clf = LogisticRegression(class_weight=class_weight, **params)
-
+    clf = LinearSVC(class_weight=class_weight, **params)
 
     if is_test:
         # split data to train and test

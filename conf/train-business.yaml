@@ -1,22 +1,22 @@
-name: sogou
+name: business
 
 dictionary_config: dict-0
 
 topic_method: lsi
 topic_config: lsi-0
 
-train_method: logistic
-train_config: logistic-0
+train_method: svm
+train_config: svm-0
 
-sogou:
+business:
     dict-0:
         count_threshold: 2      # remove words that freq <= `count_threshold` in the whole dictionary 
-        no_below: 20            # remove words that appear in less than `no_below` documents
-        no_above: 0.5           # remove words that appear in more than `no_above`% documents
+        no_below: 5            # remove words that appear in less than `no_below` documents
+        no_above: 0.8           # remove words that appear in more than `no_above`% documents
         keep_n: 100000000           
     
     lda-0:
-        num_topics: 300
+        num_topics: 20
         chunksize: 80000
         alpha: 'auto'
         eta: 'auto'
@@ -28,30 +28,18 @@ sogou:
     lsi-0:
         num_topics: 300
         # chunksize: 4000
-        # power_iters: 5
+        # power_iters: 10
 
     svm-0:
-        params:
-            kernel: rbf
-            C: 20.
-            gamma: 5.
 
-        is_unbalanced: false
+        kernel: rbf
+        C: 0.2
+        gamma: 1.
+        is_unbalanced: true
         probability: false
         is_one_vs_rest: False
         n_jobs: 4
         is_test: true
-
-    lsvm-0:
-        params:
-            penalty: l2
-            tol: 0.000001
-            C: 1.
-            dual: false
-            max_iter: 1000
-
-        is_unbalanced: false
-        is_test: false
 
     logistic-0:
         params:

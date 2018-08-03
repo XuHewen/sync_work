@@ -11,7 +11,6 @@ from w3lib.html import remove_tags
 from nlp_tools import tokenizer
 from utils.logger import logger
 from utils.mysql_ctrl import MysqlCtrl
-import random
 
 
 def _make_doc(name, text_list, doc_type, target, part_id,
@@ -53,11 +52,11 @@ def _make_doc(name, text_list, doc_type, target, part_id,
     return text_doc
 
 
-def load_news(recommend_db, target):
+def load_news(recommend_db, date_start, date_end):
 
-    select_sql = 'SELECT content FROM t_sogou_news '\
-                 'WHERE target != "财经" and target != "新闻";'
-                #  'WHERE target="%s";' % target
+    select_sql = 'SELECT content FROM t_news_corpus_latest '\
+                 'WHERE info_publ_date > "%s" AND info_publ_date < "%s";' % (
+                     date_start, date_end)
 
     ret, news = recommend_db.TB_select(select_sql)
     if ret:
@@ -108,34 +107,25 @@ def make_doc(project_info, config_info):
         logger.log.error('connect to database error, exit')
         sys.exit(-1)
 
-    select_sql = 'SELECT DISTINCT target FROM t_sogou_news;'
+    count = 0
+    date_end = datetime(2018, 7, 26, 0, 0, 0)
 
-    ret, targets = recommend_db.TB_select(select_sql)
+    while count < 20:
+        count += 1
 
-    targets = [x[0] for x in targets]
+        doc_type = 'train'
+        part_id = 1
 
-    doc_type = 'train'
-    file_size = 10000
-    
-    # for tag in targets:
-    tag = '非财经'
-    news = load_news(recommend_db, '新闻')
-    random.seed(10)
-    news = random.sample(news, 50000)
-    
-    if len(news) > 0:
-        part_id = 6
-        file_num = len(news) // file_size
-        if file_num * file_size < len(news):
-            file_num += 1
+        date_start = date_end - timedelta(days=1)
 
-        for i in range(file_num+1):
+        tag = date_end.strftime('%Y_%m_%d')
 
-            sub_news = news[i*file_size: (i+1)*file_size]
+        news = load_news(recommend_db, date_start, date_end)
 
-            text_list = [remove_tags(item[-1]) for item in sub_news]
+        date_end = date_end - timedelta(days=1)
+
+        if len(news) > 0:
+            text_list = [item[-1] for item in news]
             _make_doc(name, text_list, doc_type, tag, part_id,
                       stop_words=stop_words, is_keyword=is_keyword,
                       len_threshold=len_threshold)
-
-            part_id += 1

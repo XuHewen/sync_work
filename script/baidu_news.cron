@@ -1,0 +1,1 @@
+30 9 * * 1,2,3,4,5 xuhewen cd /home/xuhewen/work/yff && sh baidu_news.sh >> /dev/null 2>&1

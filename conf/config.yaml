@@ -19,6 +19,9 @@ baidu_chungu:
 
 debug_level: info
 
+dingtalk:
+    robot_token: '323cd7067a4fa3f5b3b85d2db6f0cfa46611400a5a6083d99b510dc86ed64b51'
+
 
 
 

@@ -10,40 +10,30 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.svm import SVC
 
 from utils.logger import logger
+from machine.get_project_config import get_project_config
 
 
-def svm_clf(train_info, data, target, le, is_save=True):
+def clf(project_info, data, target, le, is_save=True):
 
-    train_common_config = train_info['train_info']
+    name, _, topic_method, _, train_method, train_config = get_project_config(project_info)
 
-    name = train_common_config['name']
+    is_test = train_config['is_test']
 
-    tfidf_config_name = train_info['train_info']['tfidf_config']
-    ml_config_name = train_info['train_info']['classifier_config']
-    ml_type = train_info['train_info']['classifier_type']
+    is_one_vs_rest = train_config['is_one_vs_rest']
 
-    train_config = train_info[name]
-    tfidf_config = train_config[tfidf_config_name]
-    ml_config = train_config[ml_config_name]
+    is_unbalanced = train_config['is_unbalanced']
 
-    topic_method = tfidf_config['topic_method']
+    n_jobs = train_config['n_jobs']
 
-    kernel = ml_config['kernel']
-    C = ml_config['C']
-    gamma = ml_config['gamma']
-    is_unbalanced = ml_config['is_unbalanced']
-    is_prob = ml_config['is_prob']
-    is_one_vs_rest = ml_config['is_one_vs_rest']
-    n_jobs = ml_config['n_jobs']
-    is_test = ml_config['is_test']
+    params = train_config['params']
 
     class_weight = None
     if is_unbalanced:
         class_weight = 'balanced'
 
     test_score = None
-    clf = SVC(kernel=kernel, C=C, gamma=gamma,
-              class_weight=class_weight, probability=is_prob)
+    clf = SVC(class_weight=class_weight, **params)
+
     if is_one_vs_rest:
         clf = OneVsRestClassifier(clf, n_jobs=n_jobs)
 
@@ -69,14 +59,14 @@ def svm_clf(train_info, data, target, le, is_save=True):
         if not os.path.exists(base_dir):
             os.mkdir(base_dir)
 
-        clf_name = '{0}-{1}-{2}.pkl'.format(name, ml_type, topic_method)
+        clf_name = '{0}-{1}-{2}.pkl'.format(name, train_method, topic_method)
         clf_path = os.path.join(base_dir, clf_name)
 
         with open(clf_path, 'wb') as f:
             pickle.dump(clf, f, protocol=2)
 
         le_name = '{0}-{1}-{2}-label_encoder.pkl'.format(
-            name, ml_type, topic_method)
+            name, train_method, topic_method)
         le_path = os.path.join(base_dir, le_name)
 
         with open(le_path, 'wb') as f:
@@ -85,29 +75,19 @@ def svm_clf(train_info, data, target, le, is_save=True):
     return train_score, test_score
 
 
-def recover_svm_clf(train_info):
+def recover_clf(project_info):
 
-    train_common_config = train_info['train_info']
-
-    name = train_common_config['name']
-
-    tfidf_config_name = train_info['train_info']['tfidf_config']
-    ml_type = train_info['train_info']['classifier_type']
-
-    train_config = train_info[name]
-    tfidf_config = train_config[tfidf_config_name]
-
-    topic_method = tfidf_config['topic_method']
+    name, _, topic_method, _, train_method, _ = get_project_config(project_info)
 
     base_dir = './data/gensim/{}'.format(name)
 
     base_dir = os.path.join(base_dir, 'model')
 
-    clf_name = '{0}-{1}-{2}.pkl'.format(name, ml_type, topic_method)
+    clf_name = '{0}-{1}-{2}.pkl'.format(name, train_method, topic_method)
     clf_path = os.path.join(base_dir, clf_name)
 
     le_name = '{0}-{1}-{2}-label_encoder.pkl'.format(
-        name, ml_type, topic_method)
+        name, train_method, topic_method)
     le_path = os.path.join(base_dir, le_name)
 
     if not os.path.exists(clf_path) or not os.path.exists(le_path):

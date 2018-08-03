@@ -4,14 +4,10 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import os
 import sys
-from datetime import datetime, timedelta
-
-from w3lib.html import remove_tags
 
 from nlp_tools import tokenizer
 from utils.logger import logger
 from utils.mysql_ctrl import MysqlCtrl
-import random
 
 
 def _make_doc(name, text_list, doc_type, target, part_id,
@@ -55,8 +51,8 @@ def _make_doc(name, text_list, doc_type, target, part_id,
 
 def load_news(recommend_db, target):
 
-    select_sql = 'SELECT content FROM t_sogou_news '\
-                 'WHERE target != "财经" and target != "新闻";'
+    select_sql = 'SELECT content FROM t_business_news '\
+                 'WHERE target = "%s";' % target
                 #  'WHERE target="%s";' % target
 
     ret, news = recommend_db.TB_select(select_sql)
@@ -80,7 +76,7 @@ def make_doc(project_info, config_info):
 
     logger.log.info('start making doc, %s ... ' % name)
 
-    db_info = config_info['yff_mysql']
+    db_info = config_info['recommend_mysql_r']
 
     make_info = project_info['make_doc']
 
@@ -108,34 +104,21 @@ def make_doc(project_info, config_info):
         logger.log.error('connect to database error, exit')
         sys.exit(-1)
 
-    select_sql = 'SELECT DISTINCT target FROM t_sogou_news;'
+    select_sql = 'SELECT DISTINCT target FROM t_business_news;'
 
     ret, targets = recommend_db.TB_select(select_sql)
 
     targets = [x[0] for x in targets]
 
     doc_type = 'train'
-    file_size = 10000
     
-    # for tag in targets:
-    tag = '非财经'
-    news = load_news(recommend_db, '新闻')
-    random.seed(10)
-    news = random.sample(news, 50000)
-    
-    if len(news) > 0:
-        part_id = 6
-        file_num = len(news) // file_size
-        if file_num * file_size < len(news):
-            file_num += 1
+    for tag in targets:
+        news = load_news(recommend_db, tag)
+        part_id = 1
 
-        for i in range(file_num+1):
+        if len(news) > 0:
 
-            sub_news = news[i*file_size: (i+1)*file_size]
-
-            text_list = [remove_tags(item[-1]) for item in sub_news]
+            text_list = [item[-1] for item in news]
             _make_doc(name, text_list, doc_type, tag, part_id,
                       stop_words=stop_words, is_keyword=is_keyword,
                       len_threshold=len_threshold)
-
-            part_id += 1

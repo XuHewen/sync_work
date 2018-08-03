@@ -20,25 +20,15 @@ def xgb_clf(data, target, le, is_save=True):
     train_info, tfidf_config, ml_config = get_train_info()
 
     # setting parameters
-    name = train_info.get('name')
-    ml_type = train_info.get('train_type')
+    name, _, topic_method, _, train_method, train_config = get_project_config(project_info)
 
-    topic_method = tfidf_config.get('topic_method')
 
-    max_depth = int(ml_config.get('max_depth'))
-    eta = int(ml_config.get('eta'))
-    silent = int(ml_config.get('silent'))
-    objective = ml_config.get('objective')
-    nthread = int(ml_config.get('nthread'))
-    eval_metric = ml_config.get('eval_metric')
-    num_round = int(ml_config.get('num_round'))
-
-    params = {'max_depth': max_depth,
-              'eta': eta,
-              'silent': silent,
-              'objective': objective,
-              'nthread': nthread,
-              'eval_metric': eval_metric}
+    params = {'max_depth': train_config['max_depth'],
+              'eta': train_config['eta'],
+              'silent': train_config['silent'],
+              'objective': train_config['objective'],
+              'nthread': train_config['nthread'],
+              'eval_metric': train_config['train_config']}
 
     # split data to train and test
     X_train, X_test, y_train, y_test = train_test_split(data, target,
