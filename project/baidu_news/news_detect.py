@@ -14,7 +14,7 @@ import requests
 import shutil
 
 
-def load_news(recommend_db-*):
+def load_news(recommend_db):
     select_sql = 'SELECT news_id, title, url, publ_date, summary, keyword, keyword_type, source '\
                  'FROM t_baidu_search '\
                  'WHERE is_processed = 0;'
